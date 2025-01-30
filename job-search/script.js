@@ -9,7 +9,7 @@ document.getElementById('job-search-form').addEventListener('submit', function(e
     loadingIndicator.style.display = 'block';
 
     const apiUrl = 'https://api.apijobs.dev/v1/job/search';
-    // const apiKey = '7c02ca149365dbe3db2e7d580fbfcb6d926c77ae0df40d43bbcd002ab8d686c0';
+    const apiKey = '7c02ca149365dbe3db2e7d580fbfcb6d926c77ae0df40d43bbcd002ab8d686c0';
 
     const payload = {
         q: searchQuery,
