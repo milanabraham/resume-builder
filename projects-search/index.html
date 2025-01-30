@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Recommendation App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Buildyy Projects </h1>
+
+        <div class="upload-section">
+            <form id="resume-upload-form">
+                <label for="resume-file">Upload your resume (PDF or DOCX):</label>
+                <div class="input-group">
+                    <input type="file" id="resume-file" accept=".pdf, .docx" required>
+                    <button type="submit" class="btn">Upload Resume</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="search-section">
+            <label for="manual-search">Search for projects (e.g., React, Web Development):</label>
+            <div class="input-group">
+                <input type="text" id="manual-search" placeholder="Enter search keywords">
+                <button id="search-btn" class="btn">Search</button>
+            </div>
+        </div>
+
+        <div id="project-recommendations">
+            <!-- Recommended projects will appear here -->
+        </div>
+    </div>
+    <script src="./script.js"></script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeForge Pro - Modern Resume Builder</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="antialiased" x-data="resumeApp()">
+    <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div class="resume-container max-w-7xl w-full rounded-2xl overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2">
+                <!-- Form Section -->
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800">Resume Builder</h1>
+                        <div class="flex space-x-4">
+                            <button 
+                                @click="clearForm"
+                                class="px-6 py-3 rounded-lg font-semibold text-red-600 hover:text-red-700"
+                            >
+                                Clear Form
+                            </button>
+                            <button 
+                                @click="downloadPDF"
+                                class="download-btn text-white px-6 py-3 rounded-lg font-semibold flex items-center space-x-2"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                <span>Download PDF</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-8">
+                        <!-- Personal Information -->
+                        <div>
+                            <h2 class="section-title text-xl font-semibold text-gray-700 mb-4">Personal Information</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <input 
+                                        x-model="resumeData.name"
+                                        @input="saveToLocalStorage"
+                                        class="form-input w-full px-4 py-2 rounded-lg"
+                                        placeholder="John Doe"
+                                    >
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                                    <input 
+                                        x-model="resumeData.title"
+                                        @input="saveToLocalStorage"
+                                        class="form-input w-full px-4 py-2 rounded-lg"
+                                        placeholder="Software Engineer"
+                                    >
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input 
+                                        x-model="resumeData.email"
+                                        @input="saveToLocalStorage"
+                                        type="email"
+                                        class="form-input w-full px-4 py-2 rounded-lg"
+                                        placeholder="john@example.com"
+                                    >
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                    <input 
+                                        x-model="resumeData.phone"
+                                        @input="saveToLocalStorage"
+                                        type="tel"
+                                        class="form-input w-full px-4 py-2 rounded-lg"
+                                        placeholder="(555) 123-4567"
+                                    >
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                    <input 
+                                        x-model="resumeData.location"
+                                        @input="saveToLocalStorage"
+                                        class="form-input w-full px-4 py-2 rounded-lg"
+                                        placeholder="New York, NY"
+                                    >
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                                    <input 
+                                        x-model="resumeData.website"
+                                        @input="saveToLocalStorage"
+                                        class="form-input w-full px-4 py-2 rounded-lg"
+                                        placeholder="www.example.com"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Professional Summary -->
+                        <div>
+                            <h2 class="section-title text-xl font-semibold text-gray-700 mb-4">Professional Summary</h2>
+                            <textarea 
+                                x-model="resumeData.summary"
+                                @input="saveToLocalStorage"
+                                class="form-input w-full px-4 py-2 rounded-lg h-32"
+                                placeholder="Write a compelling summary of your professional background and key achievements..."
+                            ></textarea>
+                        </div>
+
+                        <!-- Experience -->
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="section-title text-xl font-semibold text-gray-700">Work Experience</h2>
+                                <button 
+                                    @click="addItem('experiences')"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                                >
+                                    Add Experience
+                                </button>
+                            </div>
+                            
+                            <template x-for="(exp, index) in resumeData.experiences" :key="index">
+                                <div class="mb-6 p-4 border border-gray-200 rounded-lg">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                                            <input 
+                                                x-model="exp.company"
+                                                @input="saveToLocalStorage"
+                                                class="form-input w-full px-4 py-2 rounded-lg"
+                                                placeholder="Company Name"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
+                                            <input 
+                                                x-model="exp.position"
+                                                @input="saveToLocalStorage"
+                                                class="form-input w-full px-4 py-2 rounded-lg"
+                                                placeholder="Job Title"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                                            <input 
+                                                x-model="exp.startYear"
+                                                @input="saveToLocalStorage"
+                                                type="month"
+                                                class="form-input w-full px-4 py-2 rounded-lg"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                                            <div class="flex items-center space-x-4">
+                                                <input 
+                                                    x-model="exp.endYear"
+                                                    @input="saveToLocalStorage"
+                                                    type="month"
+                                                    class="form-input w-full px-4 py-2 rounded-lg"
+                                                    :disabled="exp.current"
+                                                >
+                                                <label class="flex items-center">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        x-model="exp.current"
+                                                        @change="saveToLocalStorage"
+                                                        class="form-checkbox h-4 w-4 text-blue-600"
+                                                    >
+                                                    <span class="ml-2 text-sm text-gray-600">Current</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                        <textarea 
+                                            x-model="exp.description"
+                                            @input="saveToLocalStorage"
+                                            class="form-input w-full px-4 py-2 rounded-lg h-32"
+                                            placeholder="• Key responsibilities and achievements&#10;• Impact and results&#10;• Technologies used"
+                                        ></textarea>
+                                    </div>
+                                    <div class="mt-4 flex justify-end">
+                                        <button 
+                                            @click="removeItem('experiences', index)"
+                                            class="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Education -->
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="section-title text-xl font-semibold text-gray-700">Education</h2>
+                                <button 
+                                    @click="addItem('education')"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                                >
+                                    Add Education
+                                </button>
+                            </div>
+                            
+                            <template x-for="(edu, index) in resumeData.education" :key="index">
+                                <div class="mb-6 p-4 border border-gray-200 rounded-lg">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">School</label>
+                                            <input 
+                                                x-model="edu.school"
+                                                @input="saveToLocalStorage"
+                                                class="form-input w-full px-4 py-2 rounded-lg"
+                                                placeholder="University Name"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Degree</label>
+                                            <input 
+                                                x-model="edu.degree"
+                                                @input="saveToLocalStorage"
+                                                class="form-input w-full px-4 py-2 rounded-lg"
+                                                placeholder="Bachelor of Science"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                                            <input 
+                                                x-model="edu.startYear"
+                                                @input="saveToLocalStorage"
+                                                type="month"
+                                                class="form-input w-full px-4 py-2 rounded-lg"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                                            <input 
+                                                x-model="edu.endYear"
+                                                @input="saveToLocalStorage"
+                                                type="month"
+                                                class="form-input w-full px-4 py-2 rounded-lg"
+                                            >
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                        <textarea 
+                                            x-model="edu.description"
+                                            @input="saveToLocalStorage"
+                                            class="form-input w-full px-4 py-2 rounded-lg h-32"
+                                            placeholder="• Major and specialization&#10;• Notable achievements&#10;• Relevant coursework"
+                                        ></textarea>
+                                    </div>
+                                    <div class="mt-4 flex justify-end">
+                                        <button  @click="removeItem('education', index)"
+                                        class="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700">
+                                        Remove
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Skills -->
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="section-title text-xl font-semibold text-gray-700">Skills</h2>
+                                <button 
+                                    @click="addItem('skills')"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                                >
+                                    Add Skill
+                                </button>
+                            </div>
+                            
+                            <template x-for="(skill, index) in resumeData.skills" :key="index">
+                                <div class="flex items-center space-x-4 mb-4">
+                                    <input 
+                                        x-model="skill.name"
+                                        @input="saveToLocalStorage"
+                                        class="form-input w-full px-4 py-2 rounded-lg"
+                                        placeholder="Skill Name"
+                                    >
+                                    <button 
+                                        @click="removeItem('skills', index)"
+                                        class="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Projects -->
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="section-title text-xl font-semibold text-gray-700">Projects</h2>
+                                <button 
+                                    @click="addItem('projects')"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                                >
+                                    Add Project
+                                </button>
+                            </div>
+                            
+                            <template x-for="(project, index) in resumeData.projects" :key="index">
+                                <div class="mb-6 p-4 border border-gray-200 rounded-lg">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Project Name</label>
+                                        <input 
+                                            x-model="project.name"
+                                            @input="saveToLocalStorage"
+                                            class="form-input w-full px-4 py-2 rounded-lg"
+                                            placeholder="Project Name"
+                                        >
+                                    </div>
+                                    <div class="mt-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                        <textarea 
+                                            x-model="project.description"
+                                            @input="saveToLocalStorage"
+                                            class="form-input w-full px-4 py-2 rounded-lg h-32"
+                                            placeholder="Describe the project, technologies used, and results..."
+                                        ></textarea>
+                                    </div>
+                                    <div class="mt-4 flex justify-end">
+                                        <button 
+                                            @click="removeItem('projects', index)"
+                                            class="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="preview-section p-8 hidden lg:block">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Live Preview</h2>
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4" x-text="resumeData.name"></h1>
+                        <p class="text-lg text-gray-600" x-text="resumeData.title"></p>
+                        <p class="mt-4"><strong>Email:</strong> <span x-text="resumeData.email"></span></p>
+                        <p><strong>Phone:</strong> <span x-text="resumeData.phone"></span></p>
+                        <p><strong>Location:</strong> <span x-text="resumeData.location"></span></p>
+                        <p><strong>Website:</strong> <span x-text="resumeData.website"></span></p>
+                        <h3 class="text-xl font-semibold text-gray-700 mt-6">Professional Summary</h3>
+                        <p x-text="resumeData.summary" class="mt-2 text-gray-600"></p>
+                        <h3 class="text-xl font-semibold text-gray-700 mt-6">Work Experience</h3>
+                        <template x-for="exp in resumeData.experiences">
+                            <div class="mt-2">
+                                <p><strong x-text="exp.position"></strong> at <span x-text="exp.company"></span></p>
+                                <p><span x-text="exp.startYear"></span> - <span x-text="exp.endYear"></span></p>
+                                <p x-text="exp.description"></p>
+                            </div>
+                        </template>
+                        <h3 class="text-xl font-semibold text-gray-700 mt-6">Education</h3>
+                        <template x-for="edu in resumeData.education">
+                            <div class="mt-2">
+                                <p><strong x-text="edu.degree"></strong>, <span x-text="edu.school"></span></p>
+                                <p><span x-text="edu.startYear"></span> - <span x-text="edu.endYear"></span></p>
+                                <p x-text="edu.description"></p>
+                            </div>
+                        </template>
+                        <h3 class="text-xl font-semibold text-gray-700 mt-6">Skills</h3>
+                        <ul>
+                            <template x-for="skill in resumeData.skills">
+                                <li class="text-gray-600" x-text="skill.name"></li>
+                            </template>
+                        </ul>
+                        <h3 class="text-xl font-semibold text-gray-700 mt-6">Projects</h3>
+                        <template x-for="project in resumeData.projects">
+                            <div class="mt-2">
+                                <p><strong x-text="project.name"></strong></p>
+                                <p x-text="project.description"></p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./script.js"></script>
+</body>
+</html>

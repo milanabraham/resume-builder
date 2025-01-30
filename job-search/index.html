@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerPro - Advanced Job Search</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="job-search-container">
+        <div class="search-header">
+            <h1>Buildyy Jobss</h1>
+            <p>Discover Your Next Career Opportunity</p>
+        </div>
+
+        <form class="job-search-form" id="job-search-form">
+            <input 
+                type="text" 
+                id="search-query" 
+                placeholder="Job title, keywords, or company" 
+                required
+            >
+            <select id="employment-type">
+                <option value="">Job Type</option>
+                <option value="FULL_TIME">Full-time</option>
+                <option value="PART_TIME">Part-time</option>
+                <option value="CONTRACT">Contract</option>
+            </select>
+            <select id="location">
+                <option value="">Location</option>
+                <option value="Remote">Remote</option>
+                <option value="Onsite">Onsite</option>
+            </select>
+            <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </form>
+
+        <div id="loading">
+            <p>Finding your perfect job...</p>
+        </div>
+
+        <div id="job-results"></div>
+    </div>
+    <script src="./script.js"></script>
+</body>
+</html>
